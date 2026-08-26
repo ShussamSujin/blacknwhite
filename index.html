@@ -161,6 +161,8 @@ footer a{color:var(--ink);font-weight:800}
 .toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:9px 20px;border-radius:99px;font-size:.86rem;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99;border:2.5px solid var(--yellow)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .mini-actions{display:flex;gap:6px;margin-top:8px}
+.region-sel{border:2px solid var(--ink);border-radius:10px;padding:5px 10px;font-family:inherit;font-weight:700;font-size:.85rem;background:#fff;color:var(--ink);cursor:pointer}
+.region-sel:focus{outline:none;box-shadow:3px 3px 0 var(--yellow)}
 </style>
 </head>
 <body>
@@ -336,8 +338,8 @@ const CATS = [
 'whale.naver.com','ubt.naver.com','whalespace.io','naverworks.com','works.naver.com','worksmobile.com','nid.naver.com']},
 {id:'edu', emoji:'🏫', name:'교육청·학교·공공 (전국 공통)', desc:'go.kr 하나로 전국 모든 교육청·공공기관, ms.kr 등으로 전국 학교 홈페이지까지', exam:false, urls:[
 'gov.kr','go.kr','or.kr','re.kr','ac.kr','sc.kr','hs.kr','ms.kr','es.kr','neis.go.kr','www.moe.go.kr','edunet.net','www.weather.go.kr','data.kma.go.kr','foodsafetykorea.go.kr','ach.or.kr','kosac.re.kr']},
-{id:'seoul', emoji:'🗼', name:'서울시교육청 전용', desc:'서울에듀 통합인증·CBT 등 — 다른 시·도라면 끄고, 우리 지역 주소는 STEP 5에 넣으세요', exam:false, urls:[
-'senedu.kr','www.sen.go.kr','cbt.sen.go.kr','ai-literacy.sen.go.kr','literacy.sen.go.kr','sen.ms.kr','sen.hs.kr','sen.es.kr']},
+{id:'region', emoji:'🗺️', name:'우리 지역 교육청', desc:'시·도를 고르면 해당 교육청과 부속 서비스 주소가 자동으로 들어갑니다', region:true, exam:false, urls:[
+'sen.go.kr','senedu.kr','sen.ms.kr','sen.hs.kr','sen.es.kr']},
 {id:'textbook', emoji:'📖', name:'교과서·출판사 학습 사이트', desc:'EBS · 미래엔 · 천재 · 비상 등 AI 디지털교과서 포함', exam:false, urls:[
 'ebs.co.kr','ebsoc.co.kr','ebsi.co.kr','www.ebsmath.co.kr','m-teacher.co.kr','aidt.m-teacher.co.kr','tsherpa.co.kr','chunjaetext.com','m.chunjaetext.com','chunjae.co.kr','milkt.co.kr','vivasam.com','v.vivasam.com','visang.com','aiedu.visang.com','www.vcourseware.com','onlyone.visang.com','taptap.visang.com','douclass.com','aidt.douclass.com','promotion.douclass.com','file.douclass.com','kumsung.co.kr','tbook.kumsung.co.kr','jihak.co.kr','kyohak.co.kr','ybm.co.kr','neungyule.com','nebooks.co.kr','i-scream.co.kr','i-screammedia.com','oauth2client.i-screammedia.com','daekyo.com','class.daekyo.com','dtbook.edunet.net']},
 {id:'activity', emoji:'🧩', name:'에듀테크 활동 도구', desc:'패들렛 · 카훗 · 퀴즈앤 · 캔바 · 노션 등', exam:false, urls:[
@@ -415,6 +417,40 @@ const GAMES = [
 
 // 학생이 설정을 건드릴 수 있는 내부 페이지 (옵션 ON 시 차단)
 const SENSITIVE = ['chrome://flags','chrome://extensions','chrome://net-internals','chrome://net-export','chrome://inspect','devtools://*'];
+
+// ─────────────────────────────────────────────
+// 시·도 교육청 (지역 선택 시 해당 주소가 '우리 지역 교육청' 카테고리에 들어감)
+// 교육청 도메인 하나로 그 하위 서비스(CBT·리터러시 등)가 전부 자동 포함됩니다.
+// ─────────────────────────────────────────────
+const REGIONS = {
+seoul:{name:'서울', urls:['sen.go.kr','senedu.kr','sen.ms.kr','sen.hs.kr','sen.es.kr']},
+busan:{name:'부산', urls:['pen.go.kr','busanedu.net']},
+daegu:{name:'대구', urls:['dge.go.kr']},
+incheon:{name:'인천', urls:['ice.go.kr']},
+gwangju:{name:'광주', urls:['gen.go.kr']},
+daejeon:{name:'대전', urls:['dje.go.kr']},
+ulsan:{name:'울산', urls:['use.go.kr']},
+sejong:{name:'세종', urls:['sje.go.kr']},
+gyeonggi:{name:'경기', urls:['goe.go.kr']},
+gangwon:{name:'강원', urls:['gwe.go.kr','kwe.go.kr']},
+chungbuk:{name:'충북', urls:['cbe.go.kr']},
+chungnam:{name:'충남', urls:['cne.go.kr']},
+jeonbuk:{name:'전북', urls:['jbe.go.kr']},
+jeonnam:{name:'전남', urls:['jne.go.kr']},
+gyeongbuk:{name:'경북', urls:['gbe.kr','gbe.go.kr']},
+gyeongnam:{name:'경남', urls:['gne.go.kr']},
+jeju:{name:'제주', urls:['jje.go.kr']},
+};
+let region = 'seoul';
+function setRegion(r){
+  region = r;
+  const c = CATS.find(x=>x.id==='region');
+  c.urls.forEach(u=>delete state.urls['region|'+u]);
+  c.urls = REGIONS[r].urls.slice();
+  c.urls.forEach(u=>state.urls['region|'+u]=true);
+  state.cats.region = true;
+  buildCats(); render();
+}
 
 // ─────────────────────────────────────────────
 // 상태
@@ -525,6 +561,10 @@ function buildCats(){
         <span class="chev">▼</span>
       </div>
       <div class="cat-body">
+        ${c.region?`<div class="mini-actions" style="align-items:center;gap:8px">
+          <label style="font-weight:800;font-size:.84rem">📍 우리 시·도:</label>
+          <select class="region-sel" onchange="setRegion(this.value)">${Object.entries(REGIONS).map(([k,r])=>`<option value="${k}" ${k===region?'selected':''}>${r.name}</option>`).join('')}</select>
+        </div>`:''}
         <div class="mini-actions">
           <button class="btn sm" onclick="toggleCat('${c.id}',true)">전체 켜기</button>
           <button class="btn sm" onclick="toggleCat('${c.id}',false)">전체 끄기</button>
