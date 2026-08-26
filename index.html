@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHU 블랙&화이트 — 크롬북 관리가 쉬워지는 허용·차단 정책 빌더</title>
+<meta name="description" content="크롬북 화이트리스트(허용)·블랙리스트(차단) 정책을 클릭 몇 번으로 완성. 구글 검색은 열고 뱀게임·팩맨 같은 숨은 게임은 차단. Google 관리 콘솔에 붙여넣기만 하면 끝.">
+<meta property="og:title" content="SHU 블랙&화이트 — blacknwhite.shu.is">
+<meta property="og:description" content="크롬북 관리가 쉬워지도록. 뭘 허용하고 뭘 차단하는지 한눈에 보이는 URL 정책 빌더">
+<meta property="og:image" content="shushu.png">
+<link rel="icon" type="image/png" href="shushu.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#F09A33; --orange-deep:#C47714; --cream:#FFF6E4; --paper:#FFFBF2;
+  --green:#69A83D; --red:#E45C3A; --teal:#2FB3BE; --yellow:#F4BB40;
+  --ink:#1E1712; --sub:#6b5d4e; --line:#e8dcc5;
+  --ok:#69A83D; --ok-soft:#e4f0d6; --bad:#E45C3A; --bad-soft:#fde3da;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Pretendard","Malgun Gothic","Apple SD Gothic Neo",sans-serif;background:var(--orange);color:var(--ink);line-height:1.6}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px 130px}
+/* ── hero ── */
+.hero{text-align:center;padding:34px 10px 26px}
+.shu-tag{font-family:'Black Han Sans',sans-serif;display:inline-block;background:var(--ink);color:var(--yellow);padding:4px 16px 2px;border-radius:99px;font-size:1.05rem;transform:rotate(-3deg);letter-spacing:.04em;box-shadow:3px 3px 0 rgba(30,23,18,.25)}
+.shushu{width:132px;height:auto;display:block;margin:14px auto 2px;animation:bob 3s ease-in-out infinite;filter:drop-shadow(5px 6px 0 rgba(30,23,18,.2))}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+.hero-logo{font-family:'Black Han Sans',sans-serif;font-size:4rem;line-height:1;letter-spacing:-.01em;margin-top:6px;user-select:none}
+.hero-logo span{display:inline-block;-webkit-text-stroke:2.5px var(--ink);paint-order:stroke fill}
+.hero-logo .l1{color:var(--green);transform:rotate(-4deg) translateY(2px)}
+.hero-logo .l2{color:var(--red);transform:rotate(2deg)}
+.hero-logo .amp{color:var(--cream);font-size:.8em;transform:rotate(-6deg) translateY(-6px);margin:0 2px}
+.hero-logo .l3{color:var(--teal);transform:rotate(-2deg) translateY(3px)}
+.hero-logo .l4{color:var(--yellow);transform:rotate(3deg)}
+.hero-logo .l5{color:var(--green);transform:rotate(-3deg) translateY(2px)}
+.hero p.tag{margin-top:14px;font-weight:800;font-size:1.05rem}
+.hero p.tag b{background:var(--ink);color:var(--cream);border-radius:99px;padding:3px 14px}
+.hero .easy{display:inline-block;margin-top:14px;background:var(--cream);border:3px solid var(--ink);color:var(--ink);border-radius:14px;padding:10px 18px;font-size:.93rem;font-weight:700;box-shadow:5px 5px 0 var(--orange-deep)}
+@media(max-width:480px){.hero-logo{font-size:2.7rem}.shushu{width:104px}}
+/* ── cards ── */
+.card{background:var(--cream);border:3px solid var(--ink);border-radius:22px;padding:22px;margin-bottom:20px;box-shadow:6px 6px 0 var(--orange-deep)}
+.step-label{font-family:'Black Han Sans',sans-serif;display:inline-block;border:2.5px solid var(--ink);color:var(--ink);font-size:.8rem;padding:3px 12px 1px;border-radius:99px;letter-spacing:.06em;margin-bottom:8px;transform:rotate(-1.5deg)}
+.step-label.g{background:var(--green);color:#fff}.step-label.r{background:var(--red);color:#fff}
+.step-label.t{background:var(--teal);color:#fff}.step-label.y{background:var(--yellow)}
+.card h2{font-size:1.18rem;margin-bottom:4px;letter-spacing:-.01em}
+.card .hint{color:var(--sub);font-size:.88rem;margin-bottom:12px}
+.badge{display:inline-block;font-size:.7rem;font-weight:800;padding:2px 9px;border-radius:99px;vertical-align:middle;margin-left:6px;background:var(--red);color:#fff;border:2px solid var(--ink)}
+code{background:#fff;border:1.5px solid var(--line);border-radius:6px;padding:1px 6px;font-size:.82em;font-family:Consolas,monospace}
+/* ── glance ── */
+.glance{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:640px){.glance{grid-template-columns:1fr}}
+.glance .col{border:2.5px solid var(--ink);border-radius:16px;padding:14px;background:var(--paper)}
+.glance .col.ok{background:var(--ok-soft)}
+.glance .col.bad{background:var(--bad-soft)}
+.glance .col h3{font-size:1rem;margin-bottom:8px}
+.glance li{list-style:none;font-size:.88rem;padding:5px 0;border-bottom:1.5px dashed rgba(30,23,18,.18)}
+.glance li:last-child{border-bottom:0}
+.glance li small{display:block;color:var(--sub);font-size:.78rem}
+.glance-foot{margin-top:12px;font-size:.86rem;background:var(--paper);border:2.5px dashed var(--ink);border-radius:14px;padding:11px 14px}
+/* ── scenario ── */
+.scenarios{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.scenarios{grid-template-columns:1fr}}
+.scenario{border:2.5px solid var(--ink);border-radius:16px;padding:14px;cursor:pointer;background:var(--paper);transition:.15s}
+.scenario.active{background:var(--yellow);box-shadow:4px 4px 0 var(--ink)}
+.scenario .t{font-weight:800}
+.scenario .d{font-size:.84rem;color:var(--sub);margin-top:3px}
+.scenario.active .d{color:#4d3c15}
+/* ── category ── */
+.cat{border:2.5px solid var(--ink);border-radius:16px;margin-bottom:10px;overflow:hidden;background:var(--paper)}
+.cat-head{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.cat-head:hover{background:#fff}
+.cat-head .emoji{font-size:1.2rem}
+.cat-head .name{font-weight:800;font-size:.95rem;flex:1}
+.cat-head .name small{display:block;font-weight:500;color:var(--sub);font-size:.79rem}
+.cnt{font-size:.78rem;color:var(--sub);white-space:nowrap;font-weight:700}
+.chev{color:var(--sub);transition:.2s;font-size:.8rem}
+.cat.open .chev{transform:rotate(180deg)}
+.cat-body{display:none;padding:4px 14px 14px;border-top:2.5px dashed var(--line)}
+.cat.open .cat-body{display:block}
+.urls{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.url-chip{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-family:Consolas,monospace;background:var(--cream);border:2px solid var(--line);border-radius:9px;padding:3px 8px;cursor:pointer;user-select:none;word-break:break-all}
+.url-chip.on{background:var(--ok-soft);border-color:var(--green);color:#2f5313}
+.url-chip.off{opacity:.4;text-decoration:line-through}
+.url-chip .dot{width:7px;height:7px;border-radius:99px;background:#cfc4ad;flex:none}
+.url-chip.on .dot{background:var(--green)}
+/* ── switch ── */
+.switch{position:relative;width:44px;height:24px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d9cdb4;border-radius:99px;transition:.2s;cursor:pointer;border:2px solid var(--ink)}
+.slider:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:2.5px;background:#fff;border:1.5px solid var(--ink);border-radius:99px;transition:.2s}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider:before{transform:translateX(19px)}
+.switch.red input:checked + .slider{background:var(--red)}
+/* ── finder ── */
+.finder-box{display:flex;gap:8px}
+.finder-box input{flex:1;border:2.5px solid var(--ink);border-radius:14px;padding:12px 14px;font-size:.95rem;font-family:inherit;background:#fff;color:var(--ink)}
+.finder-box input:focus{outline:none;box-shadow:4px 4px 0 var(--teal)}
+.tool-card{border:2.5px solid var(--ink);border-radius:16px;background:var(--paper);padding:13px 14px;margin-top:10px}
+.tool-card .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tool-card .tname{font-weight:800;font-size:.97rem}
+.tool-card .ten{font-size:.78rem;color:var(--sub)}
+.tool-card .spacer{flex:1}
+.tool-card .deps{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.dep{font-family:Consolas,monospace;font-size:.78rem;background:#e2f4f5;border:2px solid var(--teal);color:#0c5a61;border-radius:9px;padding:3px 8px;word-break:break-all}
+.dep.in{background:var(--ok-soft);border-color:var(--green);color:#2f5313}
+.tool-card .tnote{font-size:.79rem;color:var(--sub);margin-top:8px}
+.basket{margin-top:14px;border:2.5px dashed var(--ink);border-radius:16px;padding:12px 14px;background:#e2f4f5}
+.basket h3{font-size:.92rem;margin-bottom:6px}
+.basket .urls{margin-top:4px}
+.basket .url-chip{background:#fff}
+.basket .empty{font-size:.83rem;color:var(--sub)}
+.finder-empty{margin-top:10px;font-size:.86rem;color:var(--sub);background:var(--paper);border:2px dashed var(--line);border-radius:14px;padding:11px 14px}
+/* ── game block ── */
+.game-group{border:2.5px solid var(--ink);border-radius:16px;padding:13px 14px;margin-bottom:10px;background:var(--paper)}
+.game-group.on{background:var(--bad-soft)}
+.game-group .row{display:flex;align-items:center;gap:10px}
+.game-group .t{font-weight:800;font-size:.94rem;flex:1}
+.game-group .t small{display:block;font-weight:500;color:var(--sub);font-size:.79rem}
+.game-group .patterns{margin-top:9px;display:none;flex-wrap:wrap;gap:6px}
+.game-group.on .patterns{display:flex}
+.pat{font-family:Consolas,monospace;font-size:.76rem;background:#fff;border:2px solid var(--red);color:#9c3218;border-radius:9px;padding:3px 8px;word-break:break-all}
+.note{font-size:.8rem;color:#7a5a00;background:#fdf0c8;border:2px dashed var(--yellow);border-radius:10px;padding:8px 10px;margin-top:9px}
+.principle{font-size:.86rem;background:#e2f4f5;border:2.5px dashed var(--teal);border-radius:14px;padding:12px 14px;color:#0c4a50;margin-top:12px}
+textarea{width:100%;border:2.5px solid var(--ink);border-radius:14px;padding:11px;font-family:Consolas,monospace;font-size:.85rem;min-height:76px;resize:vertical;background:#fff;color:var(--ink)}
+textarea:focus{outline:none;box-shadow:4px 4px 0 var(--green)}
+.opt-row{display:flex;align-items:center;gap:10px;padding:10px 0}
+.opt-row .t{font-weight:700;font-size:.93rem;flex:1}
+.opt-row .t small{display:block;font-weight:500;color:var(--sub);font-size:.79rem}
+/* ── output ── */
+.out-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:680px){.out-grid{grid-template-columns:1fr}}
+.out-box{border:3px solid var(--ink);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;background:var(--paper)}
+.out-box .head{padding:10px 12px;display:flex;align-items:center;gap:8px;border-bottom:2.5px solid var(--ink)}
+.out-box .head .t{font-weight:800;font-size:.9rem;flex:1}
+.out-box.block .head{background:var(--red);color:#fff}
+.out-box.allow .head{background:var(--green);color:#fff}
+.out-box .head .cnt{color:rgba(255,255,255,.9)}
+.meter{height:7px;background:#eee5d0;border-bottom:1.5px solid var(--line)}
+.meter i{display:block;height:100%;background:var(--teal);transition:.3s}
+.meter i.warn{background:var(--yellow)}
+.meter i.over{background:var(--red)}
+.out-box pre{flex:1;padding:10px 12px;font-family:Consolas,monospace;font-size:.74rem;max-height:260px;overflow:auto;white-space:pre;color:#41382c}
+.btn{border:2.5px solid var(--ink);border-radius:12px;padding:9px 16px;font-weight:800;font-size:.86rem;cursor:pointer;font-family:inherit;transition:.12s;background:#fff;color:var(--ink)}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 rgba(30,23,18,.35)}
+.btn.primary{background:var(--yellow)}
+.btn.teal{background:var(--teal);color:#fff}
+.btn.sm{padding:5px 11px;font-size:.78rem;border-width:2px}
+.out-box .head .btn.sm{background:#fff;color:var(--ink)}
+.dl-row{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap}
+.apply-path{font-size:.86rem;background:var(--paper);border:2.5px dashed var(--ink);border-radius:14px;padding:12px 14px;margin-top:14px}
+/* ── sticky ── */
+.sticky{position:fixed;left:0;right:0;bottom:0;background:var(--ink);z-index:50;border-top:3px solid var(--ink)}
+.sticky .in{max-width:900px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.sticky .stat{font-size:.82rem;color:#cbb;font-weight:600}
+.sticky .stat b{color:#fff;font-size:.97rem}
+.sticky .stat b.over{color:#ff9d84}
+.sticky .spacer{flex:1}
+footer{margin-top:34px;text-align:center;color:#6b4308;font-size:.8rem;font-weight:600}
+footer a{color:var(--ink);font-weight:800}
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:9px 20px;border-radius:99px;font-size:.86rem;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:99;border:2.5px solid var(--yellow)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.mini-actions{display:flex;gap:6px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hero">
+  <span class="shu-tag">SHU!</span>
+  <img class="shushu" src="shushu.png" alt="마스코트 슈슈">
+  <div class="hero-logo"><span class="l1">블</span><span class="l2">랙</span><span class="amp">&</span><span class="l3">화</span><span class="l4">이</span><span class="l5">트</span></div>
+  <p class="tag"><b>크롬북 관리가 쉬워지도록.</b></p>
+  <div class="easy">🔒 기본은 전부 잠금 → ✅ 목록에 담은 사이트만 열립니다</div>
+</div>
+
+<div class="card">
+  <div class="step-label t">한눈에 보기</div>
+  <h2>이 정책을 적용하면 학생 크롬북이 이렇게 됩니다</h2>
+  <p class="hint">우리 학교는 "허용한 곳만 열리는" 화이트리스트 방식입니다. 아래는 기본 구성 기준이에요.</p>
+  <div class="glance">
+    <div class="col ok">
+      <h3>✅ 열려요 (화이트)</h3>
+      <ul>
+        <li><b>구글 로그인·검색</b><small>크롬북 로그인과 조사 활동에 필요</small></li>
+        <li><b>구글 수업 도구</b><small>클래스룸 · 드라이브 · 문서 · 미트</small></li>
+        <li><b>교육청·학교 공식 사이트</b><small>나이스 · 에듀넷 · 교육청 CBT</small></li>
+        <li><b>교과서·출판사 학습 사이트</b><small>EBS · 미래엔 AIDT · 천재 · 비상 등</small></li>
+        <li><b>에듀테크 도구</b><small>패들렛 · 카훗 · 퀴즈앤 · 캔바 · 북크리에이터</small></li>
+        <li><b>AI 학습 도구 · 백과사전</b><small>제미나이 · NotebookLM · 위키백과 · 사전</small></li>
+      </ul>
+    </div>
+    <div class="col bad">
+      <h3>🚫 막혀요 (블랙)</h3>
+      <ul>
+        <li><b>목록에 없는 모든 사이트</b><small>유튜브 · SNS · 게임 · 웹툰… 전부 기본 차단</small></li>
+        <li><b>구글 검색 속 숨은 게임</b><small>뱀게임 · 팩맨 · 지뢰찾기 · 두들 야구 — 검색은 되는데 게임만 콕 집어 차단</small></li>
+        <li><b>게임 모음 페이지</b><small>doodles.google 같은 게임 창고 입구도 봉쇄</small></li>
+        <li><b>Play 스토어</b><small>게임·앱 구경 통로 차단</small></li>
+        <li><b>설정 변경 페이지</b><small>chrome://flags · 확장 프로그램 관리 등</small></li>
+      </ul>
+    </div>
+  </div>
+  <div class="glance-foot">💡 <b>왜 게임 차단이 따로 필요해요?</b> 구글 검색을 허용하면 <code>www.google.com</code>이 열리는데, 뱀게임·팩맨이 바로 그 주소 아래에 숨어 있어요. 그래서 검색은 살리고 <b>게임이 있는 경로만 콕 집어 차단</b>하는 게 이 사이트의 핵심 기능입니다.</div>
+</div>
+
+<div class="card">
+  <div class="step-label g">STEP 1</div>
+  <h2>어떤 상황에 쓸 정책인가요?</h2>
+  <p class="hint">고르면 기본 구성이 자동으로 세팅됩니다. 아래 단계에서 자유롭게 조정하세요.</p>
+  <div class="scenarios">
+    <div class="scenario active" data-sc="normal" onclick="setScenario('normal')">
+      <div class="t">📚 일반 수업용</div>
+      <div class="d">평소 수업에서 쓰는 구성. 학습에 필요한 사이트를 폭넓게 허용합니다.</div>
+    </div>
+    <div class="scenario" data-sc="exam" onclick="setScenario('exam')">
+      <div class="t">📝 시험·평가용</div>
+      <div class="d">시험 보는 학급(OU) 전용. 로그인 + 시험 사이트만 열고 나머지는 전부 잠급니다.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="step-label r">STEP 2</div>
+  <h2>✅ 화이트리스트 — 허용할 사이트 고르기</h2>
+  <p class="hint">카테고리를 누르면 안에 있는 주소가 전부 보입니다. 스위치로 카테고리 전체를, 칩을 눌러 하나씩 켜고 끌 수 있어요. 🔒는 크롬북이 정상 작동하려면 꼭 필요한 카테고리입니다.</p>
+  <div id="cats"></div>
+</div>
+
+<div class="card">
+  <div class="step-label t">STEP 3</div>
+  <h2>🔎 이 사이트 쓰려면 뭘 더 열어야 해요?</h2>
+  <p class="hint">쓰고 싶은 도구 이름이나 주소를 입력해 보세요. 그 사이트가 <b>제대로 작동하는 데 같이 허용해야 하는 부가 주소</b>까지 묶음으로 알려드립니다. (예: 유튜브는 영상 데이터가 <code>googlevideo.com</code>에서 와서 이것도 열어야 재생돼요)</p>
+  <div class="finder-box">
+    <input id="finderInput" type="text" placeholder="예: 유튜브, canva, 스크래치, quizlet…" oninput="renderFinder()">
+  </div>
+  <div id="finderResults"></div>
+  <div class="basket">
+    <h3>🧺 담은 부가 주소 <span class="cnt" id="basketCnt"></span></h3>
+    <div class="urls" id="basketChips"></div>
+    <p class="empty" id="basketEmpty">아직 담은 주소가 없어요. 위에서 검색해 "묶음 담기"를 눌러 보세요. 담은 주소는 아래 완성된 정책의 허용 목록에 자동으로 들어갑니다.</p>
+    <div class="mini-actions" id="basketActions" style="display:none">
+      <button class="btn sm teal" onclick="copyBasket()">담은 주소만 복사</button>
+      <button class="btn sm" onclick="clearBasket()">비우기</button>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="step-label y">STEP 4</div>
+  <h2>🚫 블랙리스트 — 구글 속 숨은 게임 차단 <span class="badge">핵심</span></h2>
+  <p class="hint">구글 검색을 허용하면 학생들이 이 게임들을 찾아냅니다. 스위치를 켜 두면 차단 목록에 게임 경로가 자동으로 들어가요. (전부 켜 두는 걸 권장)</p>
+  <div id="games"></div>
+  <div class="principle">💡 <b>검색은 되는데 게임만 막히는 원리</b> — Chrome 정책은 <b>더 구체적인(긴) 주소가 이깁니다.</b> 허용 목록의 <code>www.google.com</code>보다 차단 목록의 <code>www.google.com/fbx</code>(뱀게임 주소)가 더 구체적이라서, 구글 로그인·검색은 그대로 되고 게임 페이지만 차단됩니다.</div>
+</div>
+
+<div class="card">
+  <div class="step-label g">STEP 5</div>
+  <h2>🏫 우리 학교 주소 추가</h2>
+  <p class="hint">학교 홈페이지·LMS 등 우리 학교만 쓰는 주소를 한 줄에 하나씩 넣으면 허용 목록에 자동으로 들어갑니다. (예: <code>yonggang.ms.kr</code>)</p>
+  <textarea id="customAllow" placeholder="school.sen.ms.kr&#10;lms.myschool.kr" oninput="render()"></textarea>
+  <div id="examBox" style="display:none;margin-top:12px">
+    <p class="hint" style="margin-bottom:6px"><b>📝 시험 사이트 주소</b> — 시험·평가용에서 열어 둘 시험 플랫폼 주소입니다.</p>
+    <textarea id="examAllow" oninput="render()">cbt.sen.go.kr</textarea>
+  </div>
+</div>
+
+<div class="card">
+  <div class="step-label r">STEP 6</div>
+  <h2>⚙️ 추가 옵션</h2>
+  <div class="opt-row">
+    <div class="t">학생이 설정을 못 건드리게 잠그기 <small>chrome://flags, 확장 프로그램 관리, 개발자 도구 등 정책을 우회할 수 있는 내부 페이지를 차단합니다. (권장: ON)</small></div>
+    <label class="switch red"><input type="checkbox" id="optSensitive" checked onchange="render()"><span class="slider"></span></label>
+  </div>
+</div>
+
+<div class="card">
+  <div class="step-label y">완성!</div>
+  <h2>📋 완성된 정책 — 복사해서 붙여넣기만 하세요</h2>
+  <p class="hint">왼쪽(차단)과 오른쪽(허용 예외)을 각각 복사해 관리 콘솔의 같은 이름 칸에 붙여넣으면 끝. 한 칸에 최대 1,000줄까지 들어갑니다.</p>
+
+  <div class="out-grid">
+    <div class="out-box block">
+      <div class="head"><span class="t">🚫 차단된 URL</span><span class="cnt" id="blockCnt"></span><button class="btn sm" onclick="copyBox('block')">복사</button></div>
+      <div class="meter"><i id="blockMeter"></i></div>
+      <pre id="blockPre"></pre>
+    </div>
+    <div class="out-box allow">
+      <div class="head"><span class="t">✅ 차단된 URL의 예외</span><span class="cnt" id="allowCnt"></span><button class="btn sm" onclick="copyBox('allow')">복사</button></div>
+      <div class="meter"><i id="allowMeter"></i></div>
+      <pre id="allowPre"></pre>
+    </div>
+  </div>
+
+  <div class="dl-row">
+    <button class="btn primary" onclick="downloadTxt()">📄 전체 정책 다운로드 (.txt)</button>
+    <button class="btn" onclick="copyAll()">전체 복사</button>
+  </div>
+
+  <div class="apply-path">
+    <b>📍 어디에 붙여넣나요?</b><br>
+    <code>admin.google.com</code> 접속 → 메뉴에서 <b>기기 → Chrome → 설정</b> → 위쪽 탭 <b>사용자 및 브라우저</b> → 왼쪽에서 적용할 <b>조직 단위(학년/학급)</b> 선택 → 아래로 내려 <b>콘텐츠</b> 구역의 <b>URL 차단</b><br>
+    · "차단된 URL" 칸에 왼쪽 목록, "차단된 URL의 예외" 칸에 오른쪽 목록을 붙여넣고 <b>저장</b><br>
+    · 반영까지 몇 분 걸릴 수 있어요. 크롬북에서 <code>chrome://policy</code> → "정책 새로고침"을 누르면 바로 적용됩니다.
+  </div>
+</div>
+
+<footer>SHU 블랙&화이트 · blacknwhite.shu.is · <a href="https://shu.is" target="_blank">SHU 단축주소 바로가기</a><br>서울 학생 스마트기기(디벗) 크롬북 관리용 · Made with Claude</footer>
+</div>
+
+<div class="sticky"><div class="in">
+  <span class="stat">🚫 차단 <b id="stickyBlock">0</b>/1000</span>
+  <span class="stat">✅ 허용 <b id="stickyAllow">0</b>/1000</span>
+  <span class="spacer"></span>
+  <button class="btn sm primary" onclick="document.querySelector('.out-box').scrollIntoView({behavior:'smooth'})">완성된 정책 보기 ↓</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// 화이트리스트(허용) 카테고리 데이터
+// ─────────────────────────────────────────────
+const CATS = [
+{id:'login', emoji:'🔑', name:'구글 로그인·검색 필수', desc:'이게 없으면 크롬북 로그인 자체가 안 됩니다', locked:true, exam:true, urls:[
+'accounts.google.com','accounts.google.co.kr','accounts.youtube.com','google.com','www.google.com','www.google.co.kr','gstatic.com','www.gstatic.com','googleusercontent.com','lh3.googleusercontent.com','googleapis.com','ssl.gstatic.com','fonts.googleapis.com','fonts.gstatic.com','myaccount.google.com','gds.google.com','gmail.com']},
+{id:'wifi', emoji:'📶', name:'와이파이 연결·앱 업데이트', desc:'인터넷 연결 확인과 보안 업데이트에 필요합니다', locked:true, exam:true, urls:[
+'connectivitycheck.gstatic.com','clients2.google.com','clients2.googleusercontent.com','clients3.google.com','clients4.google.com','update.googleapis.com','captive.apple.com','ocsp.pki.goog','crl.pki.goog']},
+{id:'internal', emoji:'💻', name:'크롬북 내부 화면', desc:'파일 관리자·카메라·설정 등 기기 안의 기본 기능', locked:true, exam:true, urls:[
+'chrome://file-manager','chrome://gallery','chrome://media-app','chrome://camera','chrome://settings','chrome://os-settings','chrome://new-tab-page','chrome://new-tab-page-third-party','chrome://*','chrome-error://*','chrome-error://chromewebdata/','chrome-untrusted://*','chrome-extension://ecnphgnkegcppnphcaiduncllbfehebf/*','devtools://*','file://*','blob://*','data://*','filesystem://*']},
+{id:'gsuite', emoji:'🎓', name:'구글 수업 도구', desc:'클래스룸 · 드라이브 · 문서 · 미트 · 설문지 등', exam:false, urls:[
+'classroom.google.com','docs.google.com','drive.google.com','sheets.google.com','slides.google.com','meet.google.com','calendar.google.com','keep.google.com','sites.google.com','forms.google.com','script.google.com','play.google.com']},
+{id:'ms365', emoji:'🪟', name:'Microsoft 365·Teams', desc:'팀즈·오피스365를 쓰는 학교만 켜세요', exam:false, urls:[
+'login.microsoft.com','login.microsoftonline.com','login.live.com','microsoft.com','office.com','office365.com','teams.microsoft.com','teams.cloud.microsoft','api.teams.cloud.microsoft','config.teams.microsoft.com','statics.teams.cdn.office.net','res.cdn.office.net','res-1.cdn.office.net','res.public.onecdn.static.microsoft','common.online.office.com','substrate.office.com','graph.microsoft.com','m365.cloud.microsoft','word.cloud.microsoft','powerpoint.cloud.microsoft','assignments.edu.cloud.microsoft','reflect.edu.cloud.microsoft','forms.cloud.microsoft','krc-word-view.officeapps.live.com','krc-word-edit.officeapps.live.com','sen0842.sharepoint.com','sen0842-my.sharepoint.com','webshell.suite.office.com','messaging.engagement.office.com']},
+{id:'edu', emoji:'🏫', name:'교육청·학교 공식 사이트', desc:'나이스 · 교육청 · 에듀넷 · CBT 등 공공 사이트', exam:false, urls:[
+'gov.kr','go.kr','neis.go.kr','www.sen.go.kr','www.moe.go.kr','cbt.sen.go.kr','sen.ms.kr','sen.hs.kr','sen.es.kr','edunet.net','senedu.kr','auth.senedu.kr','auyh.senedu.kr']},
+{id:'textbook', emoji:'📖', name:'교과서·출판사 학습 사이트', desc:'EBS · 미래엔 · 천재 · 비상 등 AI 디지털교과서 포함', exam:false, urls:[
+'ebs.co.kr','ebsoc.co.kr','ebsi.co.kr','www.ebsmath.co.kr','m-teacher.co.kr','aidt.m-teacher.co.kr','tsherpa.co.kr','chunjaetext.com','m.chunjaetext.com','chunjae.co.kr','milkt.co.kr','vivasam.com','v.vivasam.com','visang.com','aiedu.visang.com','www.vcourseware.com','onlyone.visang.com','taptap.visang.com','douclass.com','aidt.douclass.com','promotion.douclass.com','file.douclass.com','kumsung.co.kr','tbook.kumsung.co.kr','jihak.co.kr','kyohak.co.kr','ybm.co.kr','neungyule.com','nebooks.co.kr','i-scream.co.kr','i-screammedia.com','oauth2client.i-screammedia.com','daekyo.com','class.daekyo.com','dtbook.edunet.net']},
+{id:'activity', emoji:'🧩', name:'에듀테크 활동 도구', desc:'패들렛 · 카훗 · 퀴즈앤 · 캔바 · 노션 등', exam:false, urls:[
+'padlet.com','v1.padlet.pics','wordwall.net','quizizz.com','kahoot.it','kahoot.com','www.classcard.net','b.classcard.net','play.blooket.com','blooket.com','www.gimkit.com','quiz.zep.us','zep.us','samquiz.net','quizn.show','raporapo.com','game.raporapo.com','play.raporapo.com','www.tkbell.co.kr','tkbell.kr','q.tkbell.co.kr','q1.tkbell.co.kr','q.tkbell.kr','b.tkbell.kr','b.tkbell.co.kr','download.tkbell.co.kr','maruedu.kr','classroomscreen.com','www.menti.com','menti.com','mentimeter.com','canva.com','www.canva.com','canva.link','export-download.canva.com','canva.site','miro.com','jamboard.google.com','thinglink.com','flip.com','edpuzzle.com','app.bookcreator.com','web.kamihq.com','api.kamihq.com','www.kamiapp.com','notion.so','www.notion.com','notion.site']},
+{id:'ai', emoji:'🤖', name:'AI 학습 도구', desc:'제미나이 · NotebookLM · 코파일럿', exam:false, urls:[
+'gemini.google.com','notebooklm.google.com','aistudio.google.com','copilot.microsoft.com']},
+{id:'search', emoji:'🔍', name:'검색·백과·사전', desc:'위키백과 · 네이버 사전 · 나무위키 등', exam:false, urls:[
+'wikipedia.org','ko.wikipedia.org','namu.wiki','www.naver.com','ko.dict.naver.com','hanja.dict.naver.com','daum.net','kr.pinterest.com']},
+{id:'cdn', emoji:'🔧', name:'보조 주소 (CDN·라이브러리)', desc:'위 학습 사이트들이 깨지지 않고 열리게 하는 뒷단 주소', exam:false, urls:[
+'cloudfront.net','akamaized.net','akamaihd.net','cloudflare.com','jsdelivr.net','unpkg.com','js.stripe.com','www.recaptcha.net','events.launchdarkly.com','api.launchdarkly.com','firebaseapp.com','firestore.googleapis.com','console.firebase.google.com','netlify.com','netlify.app','github.io']},
+];
+
+// ─────────────────────────────────────────────
+// 부가 주소 사전 — "이 사이트 쓰려면 이것도 열어야 해요"
+// 참고: Chrome 정책 패턴 "example.com"은 www 등 모든 하위 주소를 자동 포함합니다.
+//       그래서 여기엔 '뿌리가 다른' 부가 도메인 위주로 담았습니다.
+// ─────────────────────────────────────────────
+const TOOLS = [
+{ko:'유튜브', en:'YouTube', alias:['youtube','유툽','영상'], deps:['youtube.com','youtube-nocookie.com','youtu.be','ytimg.com','yt3.ggpht.com','googlevideo.com'], note:'영상 데이터는 googlevideo.com에서, 썸네일은 ytimg.com에서 옵니다 — 이게 빠지면 화면만 뜨고 재생이 안 돼요.'},
+{ko:'캔바', en:'Canva', alias:['canva','디자인'], deps:['canva.com','canva.link','canva.site','static.canva.com','export-download.canva.com'], note:'과제 공유 링크(canva.link)와 학생 작품 게시(canva.site)까지 열어야 완전히 작동해요.'},
+{ko:'패들렛', en:'Padlet', alias:['padlet'], deps:['padlet.com','padlet.pics','padletcdn.com'], note:'업로드한 사진·파일이 padlet.pics에서 옵니다.'},
+{ko:'카훗', en:'Kahoot!', alias:['kahoot','카훗!'], deps:['kahoot.it','kahoot.com'], note:'학생 참여는 kahoot.it, 문제 만들기는 kahoot.com — 둘 다 필요해요.'},
+{ko:'퀴즈즈', en:'Quizizz (Wayground)', alias:['quizizz','wayground','퀴지즈'], deps:['quizizz.com','wayground.com'], note:'2025년부터 Wayground로 이름이 바뀌는 중이라 두 주소 모두 열어두는 게 안전해요.'},
+{ko:'블루킷', en:'Blooket', alias:['blooket'], deps:['blooket.com'], note:'play.blooket.com 등 하위 주소는 자동 포함됩니다.'},
+{ko:'젭', en:'ZEP', alias:['zep','메타버스'], deps:['zep.us'], note:'quiz.zep.us(젭 퀴즈) 등 하위 주소는 자동 포함됩니다.'},
+{ko:'북크리에이터', en:'Book Creator', alias:['bookcreator','북 크리에이터','전자책'], deps:['bookcreator.com','firebaseapp.com','firestore.googleapis.com','googleapis.com'], note:'로그인·저장이 구글 Firebase를 거쳐서 함께 열어야 책이 저장돼요.'},
+{ko:'카미', en:'Kami', alias:['kami','PDF 필기'], deps:['kamihq.com','kamiapp.com'], note:'구버전(kamihq)과 신버전(kamiapp) 주소를 모두 씁니다.'},
+{ko:'노션', en:'Notion', alias:['notion'], deps:['notion.so','notion.com','notion.site','notion-static.com'], note:'공유 페이지(notion.site)와 이미지(notion-static.com)까지 열어야 온전히 보여요.'},
+{ko:'스크래치', en:'Scratch', alias:['scratch','코딩'], deps:['scratch.mit.edu'], note:'assets·clouddata 등 하위 주소는 자동 포함됩니다.'},
+{ko:'엔트리', en:'Entry', alias:['entry','플레이엔트리'], deps:['playentry.org'], note:'네이버 로그인으로 쓰려면 nid.naver.com도 함께 여세요.'},
+{ko:'미리캔버스', en:'MiriCanvas', alias:['miricanvas','미리 캔버스'], deps:['miricanvas.com'], note:'file.miricanvas.com 등 하위 주소는 자동 포함됩니다.'},
+{ko:'멘티미터', en:'Mentimeter', alias:['mentimeter','menti','설문'], deps:['mentimeter.com','menti.com'], note:'학생 참여 주소가 menti.com이라 따로 열어야 해요.'},
+{ko:'지오지브라', en:'GeoGebra', alias:['geogebra','수학'], deps:['geogebra.org'], note:'www·cdn 등 하위 주소는 자동 포함됩니다.'},
+{ko:'데스모스', en:'Desmos', alias:['desmos','그래핑'], deps:['desmos.com'], note:'수업용 액티비티는 teacher.desmos.com — 자동 포함됩니다.'},
+{ko:'퀴즐렛', en:'Quizlet', alias:['quizlet','단어장'], deps:['quizlet.com'], note:''},
+{ko:'니어팟', en:'Nearpod', alias:['nearpod'], deps:['nearpod.com'], note:''},
+{ko:'페어덱', en:'Pear Deck', alias:['peardeck','pear deck'], deps:['peardeck.com'], note:'구글 슬라이드 연동은 구글 수업 도구 카테고리로 충분해요.'},
+{ko:'팅커캐드', en:'Tinkercad', alias:['tinkercad','3D'], deps:['tinkercad.com','autodesk.com'], note:'로그인이 autodesk.com을 거칩니다.'},
+{ko:'코스페이시스', en:'CoSpaces Edu', alias:['cospaces','코스페이스'], deps:['cospaces.io'], note:'edu.cospaces.io는 자동 포함됩니다.'},
+{ko:'띵커벨', en:'ThinkerBell', alias:['tkbell','씽커벨','아이스크림'], deps:['tkbell.co.kr','tkbell.kr'], note:'참여 주소(tkbell.kr)와 본 사이트(tkbell.co.kr) 뿌리가 달라 둘 다 필요해요.'},
+{ko:'클래스카드', en:'ClassCard', alias:['classcard'], deps:['classcard.net'], note:'b.classcard.net(배틀) 등 하위 주소는 자동 포함됩니다.'},
+{ko:'워드월', en:'Wordwall', alias:['wordwall'], deps:['wordwall.net'], note:''},
+{ko:'김킷', en:'Gimkit', alias:['gimkit'], deps:['gimkit.com'], note:''},
+{ko:'에드퍼즐', en:'Edpuzzle', alias:['edpuzzle'], deps:['edpuzzle.com','ytimg.com','googlevideo.com'], note:'유튜브 영상을 잘라 쓰는 도구라 유튜브 영상 주소도 함께 열어야 재생돼요.'},
+{ko:'플립', en:'Flip (Flipgrid)', alias:['flip','flipgrid','영상 과제'], deps:['flip.com','flipgrid.com'], note:''},
+{ko:'미로', en:'Miro', alias:['miro','화이트보드'], deps:['miro.com'], note:''},
+{ko:'씽링크', en:'ThingLink', alias:['thinglink','씽글링크'], deps:['thinglink.com'], note:''},
+{ko:'클래스룸스크린', en:'Classroomscreen', alias:['classroomscreen'], deps:['classroomscreen.com'], note:''},
+{ko:'챗GPT', en:'ChatGPT', alias:['chatgpt','gpt','오픈AI'], deps:['chatgpt.com','openai.com','oaistatic.com','oaiusercontent.com'], note:'화면 리소스(oaistatic)와 업로드 파일(oaiusercontent) 주소가 따로 있어요.'},
+{ko:'퀴즈앤', en:'QuizN', alias:['quizn','퀴즈엔'], deps:['quizn.show','samquiz.net'], note:''},
+{ko:'라포라포', en:'RapoRapo', alias:['raporapo','라포'], deps:['raporapo.com'], note:'game·play 하위 주소는 자동 포함됩니다.'},
+{ko:'구글 어스', en:'Google Earth', alias:['earth','어스'], deps:['earth.google.com','kh.google.com'], note:'지도 타일이 kh.google.com에서 옵니다. (구글 필수 카테고리가 켜져 있으면 이미 포함)'},
+];
+
+// ─────────────────────────────────────────────
+// 블랙리스트(게임 차단) 데이터
+// ─────────────────────────────────────────────
+const GAMES = [
+{id:'fbx', emoji:'🐍', name:'구글 검색 내장 게임', desc:'뱀게임(Snake) · 솔리테어 · 지뢰찾기 · 벽돌깨기 · 기억력 게임 — 검색창에 "뱀게임"만 쳐도 나오는 것들', on:true, patterns:[
+'www.google.com/fbx','google.com/fbx','www.google.com/logos/fnbx','google.com/logos/fnbx']},
+{id:'doodle', emoji:'👾', name:'구글 두들 게임', desc:'팩맨 · 두들 야구 · 크리켓 · Garden Gnomes · 팝콘 · Magic Cat Academy · Pony Express · 페탕크 · Half Moon · Pani Puri · 할로윈 등 전부', on:true, patterns:[
+'www.google.com/logos','google.com/logos']},
+{id:'hub', emoji:'🗂️', name:'게임 탐색·목록 페이지', desc:'두들 게임을 모아 놓은 "게임 창고" — 입구를 막아야 새 게임을 못 찾습니다', on:true, patterns:[
+'doodles.google','www.google.com/doodles','google.com/doodles','sites.google.com/site/populardoodlegames']},
+{id:'store', emoji:'🛍️', name:'Play 스토어', desc:'play.google.com — 게임·앱 구경 통로. 관리 콘솔로 배포한 앱의 설치·업데이트에는 영향 없습니다', on:true, warn:'허용 목록(구글 수업 도구)에 play.google.com이 있어도 차단이 우선 적용됩니다. Play 스토어에서 직접 앱을 열어 쓰는 학교라면 끄세요.', patterns:[
+'play.google.com']},
+];
+
+// 학생이 설정을 건드릴 수 있는 내부 페이지 (옵션 ON 시 차단)
+const SENSITIVE = ['chrome://flags','chrome://extensions','chrome://net-internals','chrome://net-export','chrome://inspect','devtools://*'];
+
+// ─────────────────────────────────────────────
+// 상태
+// ─────────────────────────────────────────────
+let scenario = 'normal';
+const state = { cats:{}, urls:{}, games:{}, extra:new Set() };
+CATS.forEach(c => { state.cats[c.id] = true; c.urls.forEach(u => state.urls[c.id+'|'+u] = true); });
+GAMES.forEach(g => state.games[g.id] = g.on);
+
+function setScenario(sc){
+  scenario = sc;
+  document.querySelectorAll('.scenario').forEach(el => el.classList.toggle('active', el.dataset.sc===sc));
+  CATS.forEach(c => {
+    state.cats[c.id] = (sc==='normal') ? true : !!c.exam;
+    c.urls.forEach(u => state.urls[c.id+'|'+u] = state.cats[c.id]);
+  });
+  document.getElementById('examBox').style.display = (sc==='exam') ? 'block' : 'none';
+  buildCats(); render();
+}
+
+function toggleCat(id, checked){
+  state.cats[id] = checked;
+  CATS.find(c=>c.id===id).urls.forEach(u => state.urls[id+'|'+u] = checked);
+  buildCats(); render();
+}
+function toggleUrl(catId, url){
+  const k = catId+'|'+url;
+  state.urls[k] = !state.urls[k];
+  state.cats[catId] = CATS.find(c=>c.id===catId).urls.some(u=>state.urls[catId+'|'+u]);
+  buildCats(); render();
+}
+function toggleGame(id, checked){ state.games[id]=checked; buildGames(); render(); }
+function toggleOpen(el){ el.closest('.cat').classList.toggle('open'); }
+
+// ─────────────────────────────────────────────
+// 부가 주소 찾기
+// ─────────────────────────────────────────────
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+function findTools(q){
+  q = q.trim().toLowerCase();
+  if(!q) return [];
+  return TOOLS.filter(t =>
+    t.ko.toLowerCase().includes(q) || t.en.toLowerCase().includes(q) ||
+    t.alias.some(a=>a.toLowerCase().includes(q)) || t.deps.some(d=>d.includes(q)));
+}
+function renderFinder(){
+  const q = document.getElementById('finderInput').value;
+  const host = document.getElementById('finderResults');
+  const hits = findTools(q);
+  if(!q.trim()){ host.innerHTML=''; return; }
+  if(hits.length){
+    host.innerHTML = hits.slice(0,6).map((t,i) => {
+      const allIn = t.deps.every(d=>state.extra.has(d));
+      return `<div class="tool-card">
+        <div class="row">
+          <span class="tname">${t.ko}</span><span class="ten">${t.en}</span>
+          <span class="spacer"></span>
+          <button class="btn sm teal" onclick="addTool(${TOOLS.indexOf(t)})">${allIn?'✓ 담김':'🧺 묶음 담기 ('+t.deps.length+'개)'}</button>
+          <button class="btn sm" onclick="copyTool(${TOOLS.indexOf(t)})">복사</button>
+        </div>
+        <div class="deps">${t.deps.map(d=>`<span class="dep ${state.extra.has(d)?'in':''}">${d}</span>`).join('')}</div>
+        ${t.note?`<div class="tnote">💡 ${t.note}</div>`:''}
+      </div>`;
+    }).join('');
+  } else {
+    const dom = q.trim().toLowerCase().replace(/^https?:\/\//,'').split('/')[0];
+    if(dom.includes('.')){
+      host.innerHTML = `<div class="tool-card">
+        <div class="row"><span class="tname">${esc(dom)}</span><span class="ten">직접 입력한 주소</span>
+        <span class="spacer"></span>
+        <button class="btn sm teal" onclick="addCustomDep('${esc(dom)}')">🧺 담기</button></div>
+        <div class="tnote">💡 <b>${esc(dom)}</b> 하나만 허용해도 www 등 모든 하위 주소가 자동 포함됩니다. 담았는데 사이트가 일부 깨져 보이면 STEP 2의 <b>보조 주소(CDN)</b> 카테고리를 켜 보세요.</div>
+      </div>`;
+    } else {
+      host.innerHTML = `<div class="finder-empty">🔍 "${esc(q)}" — 사전에 아직 없는 도구예요. 사이트 주소(예: <code>example.com</code>)를 직접 입력하면 담을 수 있어요.</div>`;
+    }
+  }
+}
+function addTool(i){ TOOLS[i].deps.forEach(d=>state.extra.add(d)); renderFinder(); renderBasket(); render(); toast(TOOLS[i].ko+' 부가 주소 '+TOOLS[i].deps.length+'개 담기 완료!'); }
+function copyTool(i){ navigator.clipboard.writeText(TOOLS[i].deps.join('\n')).then(()=>toast(TOOLS[i].ko+' 주소 '+TOOLS[i].deps.length+'개 복사 완료!')); }
+function addCustomDep(d){ state.extra.add(d); renderFinder(); renderBasket(); render(); toast(d+' 담기 완료!'); }
+function removeDep(d){ state.extra.delete(d); renderFinder(); renderBasket(); render(); }
+function clearBasket(){ state.extra.clear(); renderFinder(); renderBasket(); render(); }
+function copyBasket(){ navigator.clipboard.writeText([...state.extra].join('\n')).then(()=>toast('담은 주소 '+state.extra.size+'개 복사 완료!')); }
+function renderBasket(){
+  const chips = document.getElementById('basketChips');
+  const n = state.extra.size;
+  document.getElementById('basketCnt').textContent = n ? n+'개' : '';
+  document.getElementById('basketEmpty').style.display = n?'none':'block';
+  document.getElementById('basketActions').style.display = n?'flex':'none';
+  chips.innerHTML = [...state.extra].map(d=>`<span class="url-chip on" title="누르면 빼기" onclick="removeDep('${esc(d)}')"><span class="dot"></span>${d} ✕</span>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// UI 렌더
+// ─────────────────────────────────────────────
+function buildCats(){
+  const openIds = [...document.querySelectorAll('.cat.open')].map(el=>el.dataset.id);
+  const host = document.getElementById('cats');
+  host.innerHTML = CATS.map(c => {
+    const onCnt = c.urls.filter(u=>state.urls[c.id+'|'+u]).length;
+    return `<div class="cat ${openIds.includes(c.id)?'open':''}" data-id="${c.id}">
+      <div class="cat-head" onclick="toggleOpen(this)">
+        <span class="emoji">${c.emoji}</span>
+        <div class="name">${c.name}${c.locked?' 🔒':''}<small>${c.desc}</small></div>
+        <span class="cnt">${onCnt}/${c.urls.length}</span>
+        <label class="switch" onclick="event.stopPropagation()"><input type="checkbox" ${state.cats[c.id]?'checked':''} onchange="toggleCat('${c.id}',this.checked)"><span class="slider"></span></label>
+        <span class="chev">▼</span>
+      </div>
+      <div class="cat-body">
+        <div class="mini-actions">
+          <button class="btn sm" onclick="toggleCat('${c.id}',true)">전체 켜기</button>
+          <button class="btn sm" onclick="toggleCat('${c.id}',false)">전체 끄기</button>
+        </div>
+        <div class="urls">${c.urls.map(u=>`<span class="url-chip ${state.urls[c.id+'|'+u]?'on':'off'}" onclick="toggleUrl('${c.id}','${u.replace(/'/g,"\\'")}')"><span class="dot"></span>${u}</span>`).join('')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildGames(){
+  document.getElementById('games').innerHTML = GAMES.map(g => `
+    <div class="game-group ${state.games[g.id]?'on':''}">
+      <div class="row">
+        <span style="font-size:1.2rem">${g.emoji}</span>
+        <div class="t">${g.name}<small>${g.desc}</small></div>
+        <label class="switch red"><input type="checkbox" ${state.games[g.id]?'checked':''} onchange="toggleGame('${g.id}',this.checked)"><span class="slider"></span></label>
+      </div>
+      <div class="patterns">${g.patterns.map(p=>`<span class="pat">🚫 ${p}</span>`).join('')}</div>
+      ${g.warn && state.games[g.id] ? `<div class="note">⚠️ ${g.warn}</div>` : ''}
+    </div>`).join('');
+}
+
+// ─────────────────────────────────────────────
+// 정책 생성
+// ─────────────────────────────────────────────
+function parseCustom(id){
+  return document.getElementById(id).value.split('\n').map(s=>s.trim()).filter(s=>s && !s.startsWith('#'))
+    .map(s=>s.replace(/^https?:\/\//,'').replace(/\/$/,''));
+}
+function buildPolicy(){
+  const block = ['*'];
+  GAMES.forEach(g => { if(state.games[g.id]) block.push(...g.patterns); });
+  if(document.getElementById('optSensitive').checked) block.push(...SENSITIVE);
+
+  const allow = [];
+  CATS.forEach(c => c.urls.forEach(u => { if(state.urls[c.id+'|'+u]) allow.push(u); }));
+  allow.push(...state.extra);
+  allow.push(...parseCustom('customAllow'));
+  if(scenario==='exam') allow.push(...parseCustom('examAllow'));
+
+  return { block:[...new Set(block)], allow:[...new Set(allow)] };
+}
+
+function render(){
+  const {block, allow} = buildPolicy();
+  const set = (pre,cnt,meter,list) => {
+    document.getElementById(pre).textContent = list.join('\n');
+    document.getElementById(cnt).textContent = list.length + ' / 1000';
+    const m = document.getElementById(meter);
+    m.style.width = Math.min(100, list.length/10) + '%';
+    m.className = list.length>1000?'over':(list.length>900?'warn':'');
+  };
+  set('blockPre','blockCnt','blockMeter',block);
+  set('allowPre','allowCnt','allowMeter',allow);
+  document.getElementById('stickyBlock').textContent = block.length;
+  document.getElementById('stickyAllow').textContent = allow.length;
+  document.getElementById('stickyBlock').classList.toggle('over', block.length>1000);
+  document.getElementById('stickyAllow').classList.toggle('over', allow.length>1000);
+}
+
+// ─────────────────────────────────────────────
+// 복사·다운로드
+// ─────────────────────────────────────────────
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+function copyBox(which){
+  const {block, allow} = buildPolicy();
+  const list = which==='block' ? block : allow;
+  navigator.clipboard.writeText(list.join('\n')).then(()=>toast((which==='block'?'차단 URL':'허용 예외')+' '+list.length+'줄 복사 완료!'));
+}
+function copyAll(){
+  navigator.clipboard.writeText(fullText()).then(()=>toast('전체 정책 복사 완료!'));
+}
+function fullText(){
+  const {block, allow} = buildPolicy();
+  const today = new Date().toISOString().slice(0,10);
+  return [
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    ' SHU 블랙&화이트 — 크롬북 URL 정책 (blacknwhite.shu.is)',
+    ' 생성일: '+today+' / 시나리오: '+(scenario==='normal'?'일반 수업용':'시험·평가용'),
+    ' 적용: admin.google.com → 기기 → Chrome → 설정 → 콘텐츠 → URL 차단',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','',
+    '■ 차단된 URL — '+block.length+'줄','',
+    ...block, '',
+    '■ 차단된 URL의 예외 — '+allow.length+'줄','',
+    ...allow, ''
+  ].join('\n');
+}
+function downloadTxt(){
+  const blob = new Blob(['﻿'+fullText()], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'SHU_블랙화이트_크롬북정책_'+(scenario==='normal'?'일반수업':'시험평가')+'.txt';
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('정책 파일 다운로드 완료!');
+}
+
+buildCats(); buildGames(); renderBasket(); render();
+</script>
+</body>
+</html>
