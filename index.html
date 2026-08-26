@@ -607,7 +607,9 @@ function buildPolicy(){
   allow.push(...parseCustom('customAllow'));
   if(scenario==='exam') allow.push(...parseCustom('examAllow'));
 
-  return { block:[...new Set(block)], allow:[...new Set(allow)] };
+  // 같은 패턴이 양쪽에 있으면 Chrome은 차단을 우선하므로, 허용 목록에서는 빼서 모순처럼 보이지 않게 정리
+  const blockSet = new Set(block);
+  return { block:[...new Set(block)], allow:[...new Set(allow)].filter(u=>!blockSet.has(u)) };
 }
 
 function render(){
