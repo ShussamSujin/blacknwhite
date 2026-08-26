@@ -269,7 +269,7 @@ footer a{color:var(--ink);font-weight:800}
   <div class="step-label r">STEP 6</div>
   <h2>⚙️ 추가 옵션</h2>
   <div class="opt-row">
-    <div class="t">학생이 설정을 못 건드리게 잠그기 <small>chrome://flags, 확장 프로그램 관리, 개발자 도구 등 정책을 우회할 수 있는 내부 페이지를 차단합니다. (권장: ON)</small></div>
+    <div class="t">Chrome 민감한 URL 차단 <small>chrome://flags, 확장 프로그램 관리(chrome://extensions), 개발자 도구 등 학생이 정책을 우회할 수 있는 민감한 내부 주소를 차단합니다. (권장: ON)</small></div>
     <label class="switch red"><input type="checkbox" id="optSensitive" checked onchange="render()"><span class="slider"></span></label>
   </div>
 </div>
@@ -329,21 +329,25 @@ const CATS = [
 {id:'internal', emoji:'💻', name:'크롬북 내부 화면', desc:'파일 관리자·카메라·설정 등 기기 안의 기본 기능', locked:true, exam:true, urls:[
 'chrome://file-manager','chrome://gallery','chrome://media-app','chrome://camera','chrome://settings','chrome://os-settings','chrome://new-tab-page','chrome://new-tab-page-third-party','chrome://*','chrome-error://*','chrome-error://chromewebdata/','chrome-untrusted://*','chrome-extension://ecnphgnkegcppnphcaiduncllbfehebf/*','devtools://*','file://*','blob://*','data://*','filesystem://*']},
 {id:'gsuite', emoji:'🎓', name:'구글 수업 도구', desc:'클래스룸 · 드라이브 · 문서 · 미트 · 설문지 등', exam:false, urls:[
-'classroom.google.com','docs.google.com','drive.google.com','sheets.google.com','slides.google.com','meet.google.com','calendar.google.com','keep.google.com','sites.google.com','forms.google.com','script.google.com','play.google.com']},
+'classroom.google.com','docs.google.com','drive.google.com','sheets.google.com','slides.google.com','meet.google.com','calendar.google.com','keep.google.com','sites.google.com','forms.google.com','forms.gle','script.google.com','vids.google.com','vids.new','play.google.com']},
 {id:'ms365', emoji:'🪟', name:'Microsoft 365·Teams', desc:'팀즈·오피스365를 쓰는 학교만 켜세요', exam:false, urls:[
-'login.microsoft.com','login.microsoftonline.com','login.live.com','microsoft.com','office.com','office365.com','teams.microsoft.com','teams.cloud.microsoft','api.teams.cloud.microsoft','config.teams.microsoft.com','statics.teams.cdn.office.net','res.cdn.office.net','res-1.cdn.office.net','res.public.onecdn.static.microsoft','common.online.office.com','substrate.office.com','graph.microsoft.com','m365.cloud.microsoft','word.cloud.microsoft','powerpoint.cloud.microsoft','assignments.edu.cloud.microsoft','reflect.edu.cloud.microsoft','forms.cloud.microsoft','krc-word-view.officeapps.live.com','krc-word-edit.officeapps.live.com','sen0842.sharepoint.com','sen0842-my.sharepoint.com','webshell.suite.office.com','messaging.engagement.office.com']},
+'login.microsoft.com','login.microsoftonline.com','login.live.com','microsoft.com','office.com','office365.com','teams.microsoft.com','teams.cloud.microsoft','api.teams.cloud.microsoft','config.teams.microsoft.com','statics.teams.cdn.office.net','res.cdn.office.net','res-1.cdn.office.net','res.public.onecdn.static.microsoft','common.online.office.com','substrate.office.com','graph.microsoft.com','m365.cloud.microsoft','word.cloud.microsoft','powerpoint.cloud.microsoft','assignments.edu.cloud.microsoft','reflect.edu.cloud.microsoft','forms.cloud.microsoft','krc-word-view.officeapps.live.com','krc-word-edit.officeapps.live.com','sen0842.sharepoint.com','sen0842-my.sharepoint.com','webshell.suite.office.com','messaging.engagement.office.com','browser.events.data.microsoft.com','us-mobile.events.data.microsoft.com','browser.pipe.aria.microsoft.com','word-telemetry.officeapps.live.com','wise-m.public.cdn.office.net','www.yammer.com','lync.com','dc.services.visualstudio.com']},
+{id:'naver', emoji:'🐳', name:'네이버 웨일·웍스', desc:'웨일 스페이스 · UBT 시험 · 네이버웍스 — naver.com 전체를 열지 않아 웹툰은 안 풀려요', exam:false, urls:[
+'whale.naver.com','ubt.naver.com','whalespace.io','naverworks.com','works.naver.com','worksmobile.com','nid.naver.com']},
 {id:'edu', emoji:'🏫', name:'교육청·학교 공식 사이트', desc:'나이스 · 교육청 · 에듀넷 · CBT 등 공공 사이트', exam:false, urls:[
-'gov.kr','go.kr','neis.go.kr','www.sen.go.kr','www.moe.go.kr','cbt.sen.go.kr','sen.ms.kr','sen.hs.kr','sen.es.kr','edunet.net','senedu.kr','auth.senedu.kr','auyh.senedu.kr']},
+'gov.kr','go.kr','or.kr','re.kr','ac.kr','sc.kr','neis.go.kr','www.sen.go.kr','www.moe.go.kr','cbt.sen.go.kr','sen.ms.kr','sen.hs.kr','sen.es.kr','edunet.net','senedu.kr','auth.senedu.kr','auyh.senedu.kr','ai-literacy.sen.go.kr','literacy.sen.go.kr','www.weather.go.kr','data.kma.go.kr','foodsafetykorea.go.kr','ach.or.kr','kosac.re.kr']},
 {id:'textbook', emoji:'📖', name:'교과서·출판사 학습 사이트', desc:'EBS · 미래엔 · 천재 · 비상 등 AI 디지털교과서 포함', exam:false, urls:[
 'ebs.co.kr','ebsoc.co.kr','ebsi.co.kr','www.ebsmath.co.kr','m-teacher.co.kr','aidt.m-teacher.co.kr','tsherpa.co.kr','chunjaetext.com','m.chunjaetext.com','chunjae.co.kr','milkt.co.kr','vivasam.com','v.vivasam.com','visang.com','aiedu.visang.com','www.vcourseware.com','onlyone.visang.com','taptap.visang.com','douclass.com','aidt.douclass.com','promotion.douclass.com','file.douclass.com','kumsung.co.kr','tbook.kumsung.co.kr','jihak.co.kr','kyohak.co.kr','ybm.co.kr','neungyule.com','nebooks.co.kr','i-scream.co.kr','i-screammedia.com','oauth2client.i-screammedia.com','daekyo.com','class.daekyo.com','dtbook.edunet.net']},
 {id:'activity', emoji:'🧩', name:'에듀테크 활동 도구', desc:'패들렛 · 카훗 · 퀴즈앤 · 캔바 · 노션 등', exam:false, urls:[
-'padlet.com','v1.padlet.pics','wordwall.net','quizizz.com','kahoot.it','kahoot.com','www.classcard.net','b.classcard.net','play.blooket.com','blooket.com','www.gimkit.com','quiz.zep.us','zep.us','samquiz.net','quizn.show','raporapo.com','game.raporapo.com','play.raporapo.com','www.tkbell.co.kr','tkbell.kr','q.tkbell.co.kr','q1.tkbell.co.kr','q.tkbell.kr','b.tkbell.kr','b.tkbell.co.kr','download.tkbell.co.kr','maruedu.kr','classroomscreen.com','www.menti.com','menti.com','mentimeter.com','canva.com','www.canva.com','canva.link','export-download.canva.com','canva.site','miro.com','jamboard.google.com','thinglink.com','flip.com','edpuzzle.com','app.bookcreator.com','web.kamihq.com','api.kamihq.com','www.kamiapp.com','notion.so','www.notion.com','notion.site']},
-{id:'ai', emoji:'🤖', name:'AI 학습 도구', desc:'제미나이 · NotebookLM · 코파일럿', exam:false, urls:[
-'gemini.google.com','notebooklm.google.com','aistudio.google.com','copilot.microsoft.com']},
-{id:'search', emoji:'🔍', name:'검색·백과·사전', desc:'위키백과 · 네이버 사전 · 나무위키 등', exam:false, urls:[
-'wikipedia.org','ko.wikipedia.org','namu.wiki','www.naver.com','ko.dict.naver.com','hanja.dict.naver.com','daum.net','kr.pinterest.com']},
+'padlet.com','v1.padlet.pics','padlet.app','padlet.net','pepin.padlet.com','wordwall.net','quizizz.com','kahoot.it','kahoot.com','www.classcard.net','b.classcard.net','play.blooket.com','blooket.com','www.gimkit.com','quiz.zep.us','zep.us','samquiz.net','quizn.show','raporapo.com','game.raporapo.com','play.raporapo.com','www.tkbell.co.kr','tkbell.kr','q.tkbell.co.kr','q1.tkbell.co.kr','q.tkbell.kr','b.tkbell.kr','b.tkbell.co.kr','download.tkbell.co.kr','maruedu.kr','classroomscreen.com','www.menti.com','menti.com','mentimeter.com','canva.com','www.canva.com','canva.link','export-download.canva.com','canva.site','miro.com','jamboard.google.com','thinglink.com','flip.com','edpuzzle.com','app.bookcreator.com','web.kamihq.com','api.kamihq.com','www.kamiapp.com','notion.so','www.notion.com','notion.site','poolimath.com','artbonbon.com','readingn.com','jajakjajak.com','flagschool.co.kr','sduck.kr','simspace.co.kr','classboard.net','touning.io','classgame.co.kr','www.piku.co.kr','heyzine.com','prezi.com','algeomath.kr','amplify.com','miricanvas.com','www.flaticon.com','pixabay.com','stock.adobe.com','kidsafe.com']},
+{id:'coding', emoji:'👩‍💻', name:'코딩·메이커 교육', desc:'마이크로비트 · 메이크코드 · 스크래치 · 엔트리 · 팅커캐드 · 코드org 등', exam:false, urls:[
+'makecode.com','arcade.makecode.com','makecode.microbit.org','microbit.org','trg-arcade.userpxt.io','trg-microbit.userpxt.io','code.org','scratch.mit.edu','playentry.org','appinventor.mit.edu','tinkercad.com','autodesk.com','boundaryx.io','boundary-x.github.io','teachablemachine.withgoogle.com','javalab.org','github.com']},
+{id:'ai', emoji:'🤖', name:'AI 학습 도구', desc:'제미나이 · NotebookLM(notebook.google) · 코파일럿', exam:false, urls:[
+'gemini.google.com','notebooklm.google.com','notebooklm.google','notebook.google','aistudio.google.com','copilot.microsoft.com']},
+{id:'search', emoji:'🔍', name:'검색·백과·뉴스', desc:'위키백과 · 사전 · 지식백과 · 신문 기사 — 네이버는 필요한 것만 콕 집어 허용', exam:false, urls:[
+'wikipedia.org','ko.wikipedia.org','namu.wiki','www.naver.com','ko.dict.naver.com','hanja.dict.naver.com','terms.naver.com','news.naver.com','blog.naver.com','m.blog.naver.com','doopedia.co.kr','www.britannica.com','brunch.co.kr','www.tistory.com','www.yna.co.kr','www.yonhapnewstv.co.kr','www.mt.co.kr','news.einfomax.co.kr','newsandpost.com','www.dailyjn.com','daum.net','kr.pinterest.com']},
 {id:'cdn', emoji:'🔧', name:'보조 주소 (CDN·라이브러리)', desc:'위 학습 사이트들이 깨지지 않고 열리게 하는 뒷단 주소', exam:false, urls:[
-'cloudfront.net','akamaized.net','akamaihd.net','cloudflare.com','jsdelivr.net','unpkg.com','js.stripe.com','www.recaptcha.net','events.launchdarkly.com','api.launchdarkly.com','firebaseapp.com','firestore.googleapis.com','console.firebase.google.com','netlify.com','netlify.app','github.io']},
+'cloudfront.net','akamaized.net','akamaihd.net','cloudflare.com','jsdelivr.net','unpkg.com','js.stripe.com','m.stripe.network','www.recaptcha.net','events.launchdarkly.com','api.launchdarkly.com','firebaseapp.com','firestore.googleapis.com','console.firebase.google.com','netlify.com','netlify.app','github.io','vercel.app','web.app','t1.kakaocdn.net','www.googletagmanager.com','www.google-analytics.com','zrr.kr','m.site.naver.com']},
 ];
 
 // ─────────────────────────────────────────────
@@ -386,6 +390,11 @@ const TOOLS = [
 {ko:'퀴즈앤', en:'QuizN', alias:['quizn','퀴즈엔'], deps:['quizn.show','samquiz.net'], note:''},
 {ko:'라포라포', en:'RapoRapo', alias:['raporapo','라포'], deps:['raporapo.com'], note:'game·play 하위 주소는 자동 포함됩니다.'},
 {ko:'구글 어스', en:'Google Earth', alias:['earth','어스'], deps:['earth.google.com','kh.google.com'], note:'지도 타일이 kh.google.com에서 옵니다. (구글 필수 카테고리가 켜져 있으면 이미 포함)'},
+{ko:'서울에듀(통합인증)', en:'senedu.kr', alias:['senedu','서울에듀','통합인증','교육청 로그인'], deps:['senedu.kr','sen.go.kr','edunet.net','neis.go.kr'], note:'senedu.kr 하나면 auth.senedu.kr 등 모든 하위 주소가 자동 포함돼요. 로그인 후 넘어가는 교육청 서비스(sen.go.kr)와 에듀넷·나이스까지 함께 열어야 끊기지 않습니다.'},
+{ko:'웨일 스페이스', en:'Whale Space', alias:['whale','웨일','whalespace','UBT'], deps:['whalespace.io','whale.naver.com','ubt.naver.com','nid.naver.com'], note:'UBT 시험(ubt.whalespace.io 등)은 whalespace.io에 자동 포함. 네이버 로그인(nid)만 콕 집어 열어서 웹툰 같은 다른 네이버 서비스는 안 풀려요.'},
+{ko:'마이크로비트', en:'micro:bit / MakeCode', alias:['microbit','makecode','메이크코드','마이크로 비트'], deps:['makecode.com','makecode.microbit.org','microbit.org','trg-microbit.userpxt.io','trg-arcade.userpxt.io'], note:'시뮬레이터가 userpxt.io 주소에서 돌아가서 이게 빠지면 코드 실행 화면이 안 떠요.'},
+{ko:'알지오매스', en:'AlgeoMath', alias:['algeomath','알지오'], deps:['algeomath.kr'], note:'www·cdn 하위 주소는 자동 포함됩니다.'},
+{ko:'투닝', en:'Tooning', alias:['tooning','툰잉'], deps:['touning.io'], note:''},
 ];
 
 // ─────────────────────────────────────────────
