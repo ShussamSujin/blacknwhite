@@ -381,6 +381,7 @@ const CATS = [
 // ─────────────────────────────────────────────
 const TOOLS = [
 {ko:'유튜브', en:'YouTube', alias:['youtube','유툽','영상'], deps:['youtube.com','youtube-nocookie.com','youtu.be','ytimg.com','yt3.ggpht.com','googlevideo.com'], note:'영상 데이터는 googlevideo.com에서, 썸네일은 ytimg.com에서 옵니다 — 이게 빠지면 화면만 뜨고 재생이 안 돼요.'},
+{ko:'유튜브 (임베드만)', en:'YouTube embeds only', alias:['youtube','임베드','embed','유튜브 임베디드','수업 영상만'], deps:['youtube.com/embed','www.youtube.com/embed','youtube-nocookie.com','googlevideo.com','ytimg.com','yt3.ggpht.com'], note:'유튜브 사이트는 계속 막고, 클래스룸·수업 사이트에 임베드(첨부)된 영상만 재생돼요. 교사가 영상을 URL 링크가 아닌 "첨부"로 넣어야 임베드 플레이어로 열립니다. 위의 "유튜브"(전체 허용)와 둘 중 하나만 담으세요.'},
 {ko:'구글 Vids', en:'Google Vids', alias:['vids','비즈','구글비즈','영상 편집'], deps:['vids.google.com','vids.new','googlevideo.com','drive.google.com','docs.google.com'], note:'영상 재생 데이터가 유튜브와 같은 googlevideo.com에서 스트리밍돼요 — 이게 빠지면 편집 화면은 열리는데 재생이 안 됩니다. (기본 구성엔 이미 포함)'},
 {ko:'캔바', en:'Canva', alias:['canva','디자인'], deps:['canva.com','canva.link','canva.site','static.canva.com','export-download.canva.com'], note:'과제 공유 링크(canva.link)와 학생 작품 게시(canva.site)까지 열어야 완전히 작동해요.'},
 {ko:'패들렛', en:'Padlet', alias:['padlet'], deps:['padlet.com','padlet.pics','padletcdn.com'], note:'업로드한 사진·파일이 padlet.pics에서 옵니다.'},
