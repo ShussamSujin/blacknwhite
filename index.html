@@ -276,11 +276,8 @@ footer a{color:var(--ink);font-weight:800}
 
 <div class="card">
   <div class="step-label r">STEP 6</div>
-  <h2>⚙️ 추가 옵션</h2>
-  <div class="opt-row">
-    <div class="t">Chrome 민감한 URL 차단 <small>chrome://flags, 확장 프로그램 관리(chrome://extensions), 개발자 도구 등 학생이 정책을 우회할 수 있는 민감한 내부 주소를 차단합니다. (권장: ON)</small></div>
-    <label class="switch red"><input type="checkbox" id="optSensitive" checked onchange="render()"><span class="slider"></span></label>
-  </div>
+  <h2>⚙️ 추가 옵션 — 콘솔에서 꼭 켜세요</h2>
+  <div class="note">🔐 <b>"Chrome 민감한 URL 차단" 토글 ON (권장)</b> — 이건 목록에 주소를 넣는 방식이 아니라, 관리 콘솔의 <b>URL 차단 화면에 이미 있는 토글</b>을 켜는 거예요. 켜면 chrome://flags, 확장 프로그램 관리 등 학생이 정책을 우회할 수 있는 민감한 내부 페이지를 크롬이 알아서 막아줍니다. 갤러리·카메라 같은 일반 내부 화면에는 영향이 없어요.</div>
 </div>
 
 <div class="card">
@@ -312,6 +309,7 @@ footer a{color:var(--ink);font-weight:800}
     <b>📍 어디에 붙여넣나요?</b><br>
     <code>admin.google.com</code> 접속 → 메뉴에서 <b>기기 → Chrome → 설정</b> → 위쪽 탭 <b>사용자 및 브라우저</b> → 왼쪽에서 적용할 <b>조직 단위(학년/학급)</b> 선택 → 아래로 내려 <b>콘텐츠</b> 구역의 <b>URL 차단</b><br>
     · "차단된 URL" 칸에 왼쪽 목록, "차단된 URL의 예외" 칸에 오른쪽 목록을 붙여넣고 <b>저장</b><br>
+    · 같은 화면에 있는 <b>"Chrome 민감한 URL 차단" 토글도 ON</b>으로 켜주세요 (STEP 6 참고)<br>
     · 반영까지 몇 분 걸릴 수 있어요. 크롬북에서 <code>chrome://policy</code> → "정책 새로고침"을 누르면 바로 적용됩니다.
   </div>
 </div>
@@ -436,9 +434,6 @@ const GAMES = [
 {id:'store', emoji:'🛍️', name:'Play 스토어', desc:'play.google.com — 게임·앱 구경 통로. 관리 콘솔로 배포한 앱의 설치·업데이트에는 영향 없습니다', on:true, warn:'허용 목록(구글 수업 도구)에 play.google.com이 있어도 차단이 우선 적용됩니다. Play 스토어에서 직접 앱을 열어 쓰는 학교라면 끄세요.', patterns:[
 'play.google.com']},
 ];
-
-// 학생이 설정을 건드릴 수 있는 내부 페이지 (옵션 ON 시 차단)
-const SENSITIVE = ['chrome://flags','chrome://extensions','chrome://net-internals','chrome://net-export','chrome://inspect','devtools://*'];
 
 // ─────────────────────────────────────────────
 // 시·도 교육청 (지역 선택 시 해당 주소가 '우리 지역 교육청' 카테고리에 들어감)
@@ -620,7 +615,6 @@ function parseCustom(id){
 function buildPolicy(){
   const block = ['*'];
   GAMES.forEach(g => { if(state.games[g.id]) block.push(...g.patterns); });
-  if(document.getElementById('optSensitive').checked) block.push(...SENSITIVE);
 
   const allow = [];
   CATS.forEach(c => c.urls.forEach(u => { if(state.urls[c.id+'|'+u]) allow.push(u); }));
@@ -674,6 +668,7 @@ function fullText(){
     ' SHU 블랙&화이트 — 크롬북 URL 정책 (blacknwhite.shu.is)',
     ' 생성일: '+today+' / 시나리오: '+(scenario==='normal'?'일반 수업용':'시험·평가용'),
     ' 적용: admin.google.com → 기기 → Chrome → 설정 → 콘텐츠 → URL 차단',
+    ' ※ 같은 화면의 "Chrome 민감한 URL 차단" 토글을 ON으로 켜세요 (권장)',
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━','',
     '■ 차단된 URL — '+block.length+'줄','',
     ...block, '',
