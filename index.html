@@ -507,6 +507,42 @@ function toggleOpen(el){ el.closest('.cat').classList.toggle('open'); }
 // 부가 주소 찾기
 // ─────────────────────────────────────────────
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+// ── AI 부가 주소 분석 (앱스크립트 중계 서버 경유) ──
+const AI_PROXY_URL = ''; // 배포된 앱스크립트 웹앱 URL
+let aiBusy = false;
+async function askAI(){
+  const q = document.getElementById('finderInput').value.trim();
+  if(!q || aiBusy) return;
+  if(!AI_PROXY_URL){ toast('AI 기능은 준비 중이에요!'); return; }
+  aiBusy = true;
+  const host = document.getElementById('finderResults');
+  host.innerHTML = '<div class="finder-empty">🤖 AI가 "'+esc(q)+'" 사이트의 부가 주소를 분석하고 있어요… (5~10초)</div>';
+  try{
+    const r = await fetch(AI_PROXY_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({query:q})});
+    const d = JSON.parse((await r.text()).replace(/```json|```/g,'').trim());
+    if(d.error) throw new Error(d.error);
+    window._ai = d;
+    if(!d.domains || !d.domains.length){
+      host.innerHTML = '<div class="finder-empty">🤖 '+esc(d.note || 'AI가 이 사이트는 허용을 권하지 않아요.')+'</div>';
+    } else {
+      host.innerHTML = '<div class="tool-card">'
+        + '<div class="row"><span class="tname">🤖 '+esc(d.name||q)+'</span><span class="ten">AI 분석 결과</span><span class="spacer"></span>'
+        + '<button class="btn sm teal" onclick="addAIDeps()">🧺 묶음 담기 ('+d.domains.length+'개)</button></div>'
+        + '<div class="deps">'+d.domains.map(function(x){return '<span class="dep">'+esc(String(x))+'</span>';}).join('')+'</div>'
+        + (d.note ? '<div class="tnote">💡 '+esc(d.note)+'</div>' : '')
+        + '<div class="tnote">⚠️ AI 분석은 참고용이에요 — 테스트 조직(OU)에서 확인한 뒤 사용하세요.</div>'
+        + '</div>';
+    }
+  }catch(err){
+    host.innerHTML = '<div class="finder-empty">😵 AI 분석에 실패했어요. 잠시 후 다시 시도해 주세요.</div>';
+  }
+  aiBusy = false;
+}
+function addAIDeps(){
+  ((window._ai||{}).domains||[]).forEach(function(d){ state.extra.add(String(d).toLowerCase().replace(/^https?:\/\//,'').replace(/\/$/,'')); });
+  renderBasket(); render(); toast('AI 추천 주소 담기 완료!');
+}
 function findTools(q){
   q = q.trim().toLowerCase();
   if(!q) return [];
@@ -539,11 +575,11 @@ function renderFinder(){
       host.innerHTML = `<div class="tool-card">
         <div class="row"><span class="tname">${esc(dom)}</span><span class="ten">직접 입력한 주소</span>
         <span class="spacer"></span>
-        <button class="btn sm teal" onclick="addCustomDep('${esc(dom)}')">🧺 담기</button></div>
+        <button class="btn sm teal" onclick="addCustomDep('${esc(dom)}')">🧺 담기</button>${AI_PROXY_URL?'<button class="btn sm" onclick="askAI()">🤖 AI 분석</button>':''}</div>
         <div class="tnote">💡 <b>${esc(dom)}</b> 하나만 허용해도 www 등 모든 하위 주소가 자동 포함됩니다. 담았는데 사이트가 일부 깨져 보이면 STEP 2의 <b>보조 주소(CDN)</b> 카테고리를 켜 보세요.</div>
       </div>`;
     } else {
-      host.innerHTML = `<div class="finder-empty">🔍 "${esc(q)}" — 사전에 아직 없는 도구예요. 사이트 주소(예: <code>example.com</code>)를 직접 입력하면 담을 수 있어요.</div>`;
+      host.innerHTML = `<div class="finder-empty">🔍 "${esc(q)}" — 사전에 아직 없는 도구예요. 사이트 주소(예: <code>example.com</code>)를 직접 입력하면 담을 수 있어요.${AI_PROXY_URL?'<div style="margin-top:9px"><button class="btn sm teal" onclick="askAI()">🤖 AI에게 물어보기</button></div>':''}</div>`;
     }
   }
 }
