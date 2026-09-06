@@ -509,7 +509,7 @@ function toggleOpen(el){ el.closest('.cat').classList.toggle('open'); }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 
 // ── AI 부가 주소 분석 (앱스크립트 중계 서버 경유) ──
-const AI_PROXY_URL = ''; // 배포된 앱스크립트 웹앱 URL
+const AI_PROXY_URL = 'https://script.google.com/macros/s/AKfycby2M7bBAAnSd9yPMTFJ3fcVhMIqyTOTIEzSeF04tMq-oHXqmlm7cr7iiEMlY1WmwUXFAg/exec';
 let aiBusy = false;
 async function askAI(){
   const q = document.getElementById('finderInput').value.trim();
