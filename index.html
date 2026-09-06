@@ -415,7 +415,7 @@ const TOOLS = [
 {ko:'라포라포', en:'RapoRapo', alias:['raporapo','라포'], deps:['raporapo.com'], note:'game·play 하위 주소는 자동 포함됩니다.'},
 {ko:'구글 어스', en:'Google Earth', alias:['earth','어스'], deps:['earth.google.com','kh.google.com'], note:'지도 타일이 kh.google.com에서 옵니다. (구글 필수 카테고리가 켜져 있으면 이미 포함)'},
 {ko:'학생 미래역량 진단검사(서울)', en:'cbt.sen.go.kr', alias:['미래역량','진단검사','역량검사','cbt'], deps:['cbt.sen.go.kr','sen.go.kr','go.kr'], note:'sen.go.kr 하나면 진단 시스템의 모든 하위 페이지가 자동 포함돼요. 검사 화면이 일부 깨지면 STEP 2의 보조 주소(CDN) 카테고리를 켜 주세요.'},
-{ko:'서울에듀(통합인증)', en:'senedu.kr', alias:['senedu','서울에듀','통합인증','교육청 로그인'], deps:['senedu.kr','sen.go.kr','edunet.net','neis.go.kr'], note:'senedu.kr 하나면 auth.senedu.kr 등 모든 하위 주소가 자동 포함돼요. 로그인 후 넘어가는 교육청 서비스(sen.go.kr)와 에듀넷·나이스까지 함께 열어야 끊기지 않습니다.'},
+{ko:'센스쿨(senedu)', en:'senedu.kr', alias:['senedu','센스쿨','senschool','통합인증','교육청 로그인'], deps:['senedu.kr','sen.go.kr','edunet.net','neis.go.kr'], note:'senedu.kr 하나면 auth.senedu.kr 등 모든 하위 주소가 자동 포함돼요. 로그인 후 넘어가는 교육청 서비스(sen.go.kr)와 에듀넷·나이스까지 함께 열어야 끊기지 않습니다.'},
 {ko:'웨일 스페이스', en:'Whale Space', alias:['whale','웨일','whalespace','UBT'], deps:['whalespace.io','whale.naver.com','ubt.naver.com','whaleon.naver.com','nid.naver.com','pstatic.net'], note:'웨일클래스·UBT 시험은 whalespace.io 하위라 자동 포함되고, 화면 이미지·스크립트는 네이버 공용 CDN인 pstatic.net에서 와요 — 이게 빠지면 화면이 깨집니다. 네이버 로그인(nid)만 콕 집어 열어서 웹툰 같은 다른 네이버 서비스는 안 풀려요.'},
 {ko:'마이크로비트', en:'micro:bit / MakeCode', alias:['microbit','makecode','메이크코드','마이크로 비트'], deps:['makecode.com','makecode.microbit.org','microbit.org','trg-microbit.userpxt.io','trg-arcade.userpxt.io'], note:'시뮬레이터가 userpxt.io 주소에서 돌아가서 이게 빠지면 코드 실행 화면이 안 떠요.'},
 {ko:'알지오매스', en:'AlgeoMath', alias:['algeomath','알지오'], deps:['algeomath.kr'], note:'www·cdn 하위 주소는 자동 포함됩니다.'},
@@ -509,7 +509,7 @@ function toggleOpen(el){ el.closest('.cat').classList.toggle('open'); }
 function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
 
 // ── AI 부가 주소 분석 (앱스크립트 중계 서버 경유) ──
-const AI_PROXY_URL = 'https://script.google.com/macros/s/AKfycby2M7bBAAnSd9yPMTFJ3fcVhMIqyTOTIEzSeF04tMq-oHXqmlm7cr7iiEMlY1WmwUXFAg/exec';
+const AI_PROXY_URL = 'https://script.google.com/macros/s/AKfycby5TllnXFfAQgRTG3AVayOMegj6f3QVkm0939agyFcxTdm--QdiEW2woYGnqD7t2H79yA/exec';
 let aiBusy = false;
 async function askAI(){
   const q = document.getElementById('finderInput').value.trim();
